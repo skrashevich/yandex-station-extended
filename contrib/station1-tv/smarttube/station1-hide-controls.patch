@@ -1,0 +1,58 @@
+diff --git a/leanback-1.0.0/src/main/java/androidx/leanback/app/PlaybackSupportFragment.java b/leanback-1.0.0/src/main/java/androidx/leanback/app/PlaybackSupportFragment.java
+index 52f0fdc..c65edc1 100644
+--- a/leanback-1.0.0/src/main/java/androidx/leanback/app/PlaybackSupportFragment.java
++++ b/leanback-1.0.0/src/main/java/androidx/leanback/app/PlaybackSupportFragment.java
+@@ -567,7 +567,7 @@ public class PlaybackSupportFragment extends Fragment {
+                     final float fraction = (Float) arg0.getAnimatedValue();
+                     if (DEBUG) Log.v(TAG, "fraction " + fraction);
+                     view.setAlpha(fraction);
+-                    view.setTranslationY((float) mAnimationTranslateY * (1f - fraction));
++                    view.setTranslationY(getFadeTranslateY(view) * (1f - fraction));
+                 }
+             }
+         };
+@@ -583,6 +583,24 @@ public class PlaybackSupportFragment extends Fragment {
+         mControlRowFadeOutAnimator.setInterpolator(mLogAccelerateInterpolator);
+     }
+ 
++    // MOD: some firmwares ignore View.setAlpha() (e.g. Yandex Station 1, Android 6),
++    // so the faded out row stays visible. Move such row below the screen instead.
++    private static Boolean sViewAlphaIgnored;
++
++    private float getFadeTranslateY(View view) {
++        if (sViewAlphaIgnored == null) {
++            View probe = new View(view.getContext());
++            probe.setAlpha(0.5f);
++            sViewAlphaIgnored = probe.getAlpha() != 0.5f;
++        }
++
++        if (!sViewAlphaIgnored || getVerticalGridView() == null) {
++            return mAnimationTranslateY;
++        }
++
++        return Math.max(mAnimationTranslateY, getVerticalGridView().getHeight() - view.getTop());
++    }
++
+     private void loadOtherRowAnimator() {
+         final AnimatorUpdateListener updateListener = new AnimatorUpdateListener() {
+             @Override
+@@ -596,7 +614,7 @@ public class PlaybackSupportFragment extends Fragment {
+                     View view = getVerticalGridView().getChildAt(i);
+                     if (getVerticalGridView().getChildAdapterPosition(view) > 0) {
+                         view.setAlpha(fraction);
+-                        view.setTranslationY((float) mAnimationTranslateY * (1f - fraction));
++                        view.setTranslationY(getFadeTranslateY(view) * (1f - fraction));
+                     }
+                 }
+             }
+@@ -864,6 +882,10 @@ public class PlaybackSupportFragment extends Fragment {
+                     if (!mControlVisible) {
+                         if (DEBUG) Log.v(TAG, "setting alpha to 0");
+                         vh.getViewHolder().view.setAlpha(0);
++                        if (sViewAlphaIgnored != null && sViewAlphaIgnored) {
++                            vh.getViewHolder().view.setTranslationY(
++                                    getFadeTranslateY(vh.getViewHolder().view));
++                        }
+                     }
+                 }
+ 
