@@ -103,6 +103,10 @@
   первый трек и фоновый плеер без HDMI; один скрипт в AliceBridge.
   ТВ-набор не нужен. [Рецепт](../docs/recipes/station1-soundcloud.md).
 
+* **[`station1-spotify/`](station1-spotify/)** — Станция 1: официальный Spotify TV
+  и голосовой мост для Free и Premium; установка из AliceBridge или с Windows.
+  [Рецепт](../docs/recipes/station1-spotify.md).
+
 * **[`alice-say.py`](alice-say.py)** — самостоятельный клиент озвучки текста через
   штатный `AliceCapability.START_VOCALIZE` по root-SSH. На ПК нужны Python 3.11+
   и OpenSSH, на колонке — `socat`. Протокол проверен на Лайт 2 / Plum;

@@ -1,0 +1,5 @@
+tools/
+dist/
+*.jks
+*.keystore
+signing*.json
