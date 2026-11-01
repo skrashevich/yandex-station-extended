@@ -9,6 +9,10 @@
 У этой конфигурации два микрофонных канала и один опорный канал динамика на входе 48 кГц;
 обработанный выход — моно 16 кГц. Число каналов других моделей нужно проверять отдельно.
 
+В Alisa Voice 0.3.3 обработанный микрофон также используется нативным клиентом Станции 2
+по [результатам автора адаптации][station2]. Это не передача звука на ПК:
+мост из этой инструкции по-прежнему доступен только на Лайт 2.
+
 ## Запуск готового моста { #vqe-start }
 
 Если уже работает нативный клиент Alisa Voice, остановите его в CLI перед установкой
@@ -60,16 +64,11 @@ CLI выбирает VQE по умолчанию; переменная окру�
 Сборка и тесты модуля доступны в [build.py][build-source] и
 [test_vqe_tap.py][vqe-tests].
 
-!!! warning "Модуль совместим только с проверенной версией библиотеки"
-    Типы каналов и ABI не документированы производителем. До смены профиля мост проверяет
-    SHA-256 `/system/vendor/quasar/libs/libyandex_evil.so`:
-
-    ```text
-    fa7ad1544fe9ddfccedcf15acc031768345b0b8c7333bc1c0b47bc476dd4152f
-    ```
-
-    Другая библиотека отклоняется. Совместимость сначала нужно исследовать;
-    отключение проверки хеша не делает иную сборку совместимой.
+!!! warning "На другой прошивке аудиоканал требует проверки"
+    Типы каналов и двоичный интерфейс библиотеки не документированы производителем.
+    Начиная с Alisa Voice 0.3.0 неизвестная пара хешей maind/VQE допускается с предупреждением.
+    Разрешение установки не подтверждает формат и работу обработанного канала на этой сборке.
+    [Проверки совместимости][firmware-policy].
 
 <a id="rollback"></a>
 
@@ -95,6 +94,9 @@ CLI выбирает VQE по умолчанию; переменная окру�
 - Количественное улучшение распознавания и эхоподавления не измерено.
 
 [bridge]: https://github.com/rison1337/Alisa-ChatGPT-voice-assistant
-[vqe-source]: https://github.com/rison1337/Alisa-ChatGPT-voice-assistant/blob/v0.2.0/engines/bridge/station/vqe_tap.c
-[build-source]: https://github.com/rison1337/Alisa-ChatGPT-voice-assistant/blob/v0.2.0/engines/bridge/scripts/build.py
-[vqe-tests]: https://github.com/rison1337/Alisa-ChatGPT-voice-assistant/blob/v0.2.0/engines/bridge/tests/test_vqe_tap.py
+[vqe-source]: https://github.com/rison1337/Alisa-ChatGPT-voice-assistant/blob/v0.3.3/engines/bridge/station/vqe_tap.c
+[build-source]: https://github.com/rison1337/Alisa-ChatGPT-voice-assistant/blob/v0.3.3/engines/bridge/scripts/build.py
+[vqe-tests]: https://github.com/rison1337/Alisa-ChatGPT-voice-assistant/blob/v0.3.3/engines/bridge/tests/test_vqe_tap.py
+[firmware-policy]: https://github.com/rison1337/Alisa-ChatGPT-voice-assistant/blob/v0.3.3/docs/firmware-compatibility.md
+
+[station2]: https://github.com/rison1337/Alisa-ChatGPT-voice-assistant/blob/v0.3.3/docs/firmware-compatibility.md#яндекс-станция-2-yandexmidi
