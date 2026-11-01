@@ -101,7 +101,7 @@ echo PLATFORM=$(getprop ro.board.platform)
 echo ABI=$(getprop ro.product.cpu.abi)
 for pkg in com.conreo.couchytv org.smarttube.stable com.v2ray.ang; do
     installed=$(pm path $pkg 2>/dev/null)
-    case "$installed" in package:*) echo APP=$pkg;; esac
+    case "$installed" in package:*) echo APP=$pkg; echo "SHA_$pkg=$(/sbin/busybox sha256sum "${installed#package:}" | /sbin/busybox cut -d ' ' -f 1)";; esac
 done
 test -f /data/dropbear/start.sh && echo ALICEBRIDGE=yes
 true
@@ -132,11 +132,16 @@ true
         New-Item -ItemType Directory -Path $cache -Force | Out-Null
         $catalog = @(
             @{ Package='com.conreo.couchytv'; Repo='conreo/couchy-launcher'; Tag='v1.0.6'; Pattern='^Couchy-Launcher-.*\.apk$' },
-            @{ Package='org.smarttube.stable'; Repo='yuliskov/SmartTube'; Tag='32.68s'; Pattern='^SmartTube_stable_.*_arm64-v8a\.apk$' },
+            # SmartTube 32.68 with the Station 1 controls fix (see ../smarttube/), replaces the official build
+            @{ Package='org.smarttube.stable'; Repo='vladivanov2004/yandex-station-extended'; Tag='smarttube-32.68-station1'; Pattern='^SmartTube_stable_.*_station1_arm64-v8a\.apk$'; Sha256='d1af87106b8a6d57c49f4de66dcc6f04e96bf99711ac9d4b2245826d34f6ac41' },
             @{ Package='com.v2ray.ang'; Repo='2dust/v2rayNG'; Tag='1.9.45'; Pattern='^v2rayNG_.*_arm64-v8a\.apk$' }
         )
         foreach ($app in $catalog) {
-            if (-not $UpdateApps -and $preflight -match ('(?m)^APP=' + [regex]::Escape($app.Package) + '\s*$')) { Write-Host "  Уже установлено: $($app.Package)"; continue }
+            if (-not $UpdateApps -and $preflight -match ('(?m)^APP=' + [regex]::Escape($app.Package) + '\s*$')) {
+                $installedSha = [regex]::Match($preflight, '(?m)^SHA_' + [regex]::Escape($app.Package) + '=([0-9a-f]+)').Groups[1].Value
+                if (-not $app.Sha256 -or $installedSha -eq $app.Sha256) { Write-Host "  Уже установлено: $($app.Package)"; continue }
+                Write-Host "  Заменяю $($app.Package) сборкой для Станции 1, данные сохранятся"
+            }
             $release = Invoke-RestMethod -Uri "https://api.github.com/repos/$($app.Repo)/releases/tags/$($app.Tag)" -Headers @{ 'User-Agent'='StationRemote-Installer/2.0' }
             $asset = $release.assets | Where-Object { $_.name -match $app.Pattern } | Select-Object -First 1
             if (-not $asset) { throw "В официальном релизе $($app.Repo) $($app.Tag) не найден подходящий APK." }
@@ -148,6 +153,7 @@ true
                 Move-Item -LiteralPath ($cached + '.part') -Destination $cached -Force
             }
             if ($asset.digest -and $asset.digest.StartsWith('sha256:') -and (Get-FileHash -LiteralPath $cached -Algorithm SHA256).Hash.ToLowerInvariant() -ne $asset.digest.Substring(7)) { throw "Не совпал SHA-256 APK: $($asset.name)" }
+            if ($app.Sha256 -and (Get-FileHash -LiteralPath $cached -Algorithm SHA256).Hash.ToLowerInvariant() -ne $app.Sha256) { throw "Не совпал SHA-256 APK: $($asset.name)" }
             Copy-Item -LiteralPath $cached -Destination (Join-Path $work $asset.name)
         }
     }

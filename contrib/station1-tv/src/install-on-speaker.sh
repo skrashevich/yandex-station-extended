@@ -22,6 +22,43 @@ if [ ! -f /data/dropbear/start.sh ]; then
     fi
 fi
 
+# A build with another signature cannot update the installed app: copy its data,
+# reinstall, then return the data to the new app user.
+replace_signed_app() {
+    package=$1; apk=$2; data=/data/data/$package
+    keep=$DIR/app-data/$package-$(date +%Y%m%d-%H%M%S)
+    echo "Signature differs: reinstalling $package and restoring its data"
+    # Android refuses installs below 10% (max 500 MB) of free /data; keep 50 MB on top.
+    # Old busybox wraps long device names, so count columns from the end.
+    free_kb=$("$BB" df -k /data | "$BB" awk 'END {print $(NF-2)}')
+    total_kb=$("$BB" df -k /data | "$BB" awk 'END {print $(NF-4)}')
+    need_kb=$((total_kb / 10))
+    [ "$need_kb" -le 512000 ] || need_kb=512000
+    need_kb=$((need_kb + 51200))
+    if [ "$free_kb" -lt "$need_kb" ]; then
+        echo "Not enough space on /data: free about $(((need_kb - free_kb) / 1024 + 1)) MB more and re-run"
+        return 1
+    fi
+    am force-stop "$package"
+    mkdir -p "$DIR/app-data"
+    chmod 700 "$DIR" "$DIR/app-data"
+    "$BB" cp -a "$data" "$keep"
+    pm uninstall "$package" | "$BB" grep -q Success || return 1
+    output=$(pm install "$apk" 2>&1)
+    echo "$output"
+    echo "$output" | "$BB" grep -q Success || { echo "Previous $package data is kept in $keep"; return 1; }
+    uid=$(stat -c %u "$data")
+    for item in "$keep"/* "$keep"/.[!.]*; do
+        [ -e "$item" ] || continue
+        case "${item##*/}" in lib) continue;; esac
+        rm -rf "$data/${item##*/}"
+        mv "$item" "$data/"
+    done
+    chown -R "$uid:$uid" "$data"
+    restorecon -R "$data"
+    rm -rf "$keep"
+}
+
 echo '[1/5] Installing missing TV apps (existing app data is preserved)'
 # Android 6 PackageManager opens APK paths as system, not as the root shell.
 chmod 755 "$STAGE"
@@ -30,7 +67,12 @@ for apk in "$STAGE"/*.apk; do
     chmod 644 "$apk"
     output=$(pm install -r "$apk" 2>&1)
     echo "$output"
-    echo "$output" | "$BB" grep -q Success || { echo 'APK installation failed; current remote is unchanged'; exit 1; }
+    echo "$output" | "$BB" grep -q Success && continue
+    case "${apk##*/}:$output" in
+        SmartTube*:*INSTALL_FAILED_UPDATE_INCOMPATIBLE*) replace_signed_app org.smarttube.stable "$apk" && continue;;
+    esac
+    echo 'APK installation failed; current remote is unchanged'
+    exit 1
 done
 chmod 700 "$STAGE"
 
