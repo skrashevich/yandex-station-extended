@@ -1,0 +1,16 @@
+{
+  "version": "1.134.2",
+  "versionCode": 2340200,
+  "minSdk": 23,
+  "url": "https://d.apkpure.net/b/XAPK/com.spotify.tv.android?versionCode=2340200",
+  "sha256": "cce2572683217186c4b96286e990851e47d236b2593d9b1004a54f9ef02cd24a",
+  "signing_certificate_sha256": "fd450f5f94b9dba0ae7f6b19e0b512e041ea7fc2cc291b71737b319ba7f4b3d4",
+  "certificate_source": "https://open.spotify.com/.well-known/assetlinks.json",
+  "apks": {
+    "com.spotify.tv.android.apk": "509106d1df7638cf43ff0d76e11b8d4c2a24ca128fcb84f3c3b674ab255a8562",
+    "config.armeabi_v7a.apk": "7a790ce7e20b4905b6617b2850de778af5d494440869acd93c61ecf6c8217721",
+    "config.en.apk": "b9916898804e4d8e38b104f4ad6b1e82064c42215ddd581c8efa68286ea660fa",
+    "config.ru.apk": "491bbd8a318bce5af2ef1dc04adba0c1eded3db6b5c85c68fcd13f52b4da89f0",
+    "config.xhdpi.apk": "1c26b246dd77b99394a66ba882b57619d2f49a3dc7de35a7cae80959e9f84b05"
+  }
+}
