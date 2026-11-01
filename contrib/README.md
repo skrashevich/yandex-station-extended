@@ -83,6 +83,11 @@
   известных узлов метрик без удаления Алисы.
   [Рецепт и ограничения](../docs/recipes/station1-privacy.md).
 
+* **[`fiero-hi-soundcloud/`](fiero-hi-soundcloud/)** — Fiero Hi: SoundCloud голосом,
+  перемотка, пауза, треки и громкость без ПК. [Руководство](../docs/devices/fiero-hi.md#soundcloud).
+* **[`fiero-hi-privacy.sh`](fiero-hi-privacy.sh)** — Fiero Hi: обратимая блокировка узлов метрик в `/etc/hosts`. [Руководство](../docs/devices/fiero-hi.md#privacy).
+* **[`panel/install-panel.sh`](panel/install-panel.sh)** — Веб-панель колонки по HTTPS (порт 8443) для Fiero Hi. [Руководство](../docs/devices/fiero-hi.md#web-panel).
+
 ### Доступ и ADB:
 * **[`install-s97adb.sh`](https://github.com/Marker284/yandex-station-extended/blob/main/contrib/install-s97adb.sh)** —
   закрепление штатных маркеров ADB в `/data/quasar` с компьютера. Историческое имя сохранено;

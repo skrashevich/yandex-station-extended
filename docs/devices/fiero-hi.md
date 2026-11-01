@@ -133,6 +133,72 @@ AW9110. `cy8cmbr3108` и `sn3112` не отвечают по I2C — ошибк�
 **`5081`** — [звонки Алисы](../internals/calls.md): взаимный TLS, пускает только по внутреннему
 сертификату прошивки. ADB на `5555` появляется после активации.
 
+
+
+## Ограничение отправки метрик { #privacy }
+
+Для блокировки сбора телеметрии и аналитики без нарушения работы Алисы используется скрипт
+[`contrib/fiero-hi-privacy.sh`](https://github.com/Marker284/yandex-station-extended/blob/main/contrib/fiero-hi-privacy.sh).
+Он направляет адреса узлов метрик в `127.0.0.1` через `/etc/hosts` (корень монтируется на запись
+только на время применения правок).
+
+```sh
+export PATH=/opt/bin:/opt/sbin:$PATH
+base=https://raw.githubusercontent.com/Marker284/yandex-station-extended/main
+curl -fsSL "$base/contrib/fiero-hi-privacy.sh" -o /data/opt/fiero-hi-privacy.sh &&
+sh /data/opt/fiero-hi-privacy.sh apply
+```
+
+Команды скрипта:
+- `apply` — включить блокировку метрик (`startup.mobile.yandex.net`, `report.appmetrica.yandex.net`, `clck.yandex.net` и др.).
+- `check` — проверить статус разрешения адресов.
+- `restore` — полностью восстановить исходный `/etc/hosts` и вернуть корень в RO.
+
+## Локальная озвучка текста через socat { #tts }
+
+На Fiero Hi (прошивка `.50`) доступна прямая передача текста в синтез речи через внутренний порт
+демона Алисы `127.0.0.1:9875` командой `AliceCapability.START_VOCALIZE`. В отличие от других моделей,
+события приходят с фреймами `253=210`.
+
+Для отправки фраз с компьютера или сервера используется скрипт [`contrib/alice-say.py`](https://github.com/Marker284/yandex-station-extended/blob/main/contrib/alice-say.py):
+
+```sh
+python3 contrib/alice-say.py -H fiero-hi "Текст для воспроизведения"
+```
+
+На самой колонке требуется установленный `socat` из Entware (`opkg install socat`).
+
+## Локальная веб-панель управления (HTTPS) { #web-panel }
+
+Автономная веб-панель управления колонкой по HTTPS на порту `8443` (установщик [`contrib/panel/install-panel.sh`](https://github.com/Marker284/yandex-station-extended/blob/main/contrib/panel/install-panel.sh)).
+
+**Возможности:**
+- Графики загрузки CPU, памяти, диска и температуры за 24 часа.
+- Управление громкостью и произнесение произвольного текста голосом Алисы.
+- Управление цветом каждой из 3-х зон светодиодного кольца `micro:*:ring*`.
+- Встроенный веб-терминал, файловый менеджер и текстовый редактор.
+- Управление фоновыми процессами, автозапуском скриптов и расписанием (cron).
+
+**Установка на колонке:**
+Требуется Entware (`socat` и `openssl-util` подтягиваются автоматически):
+
+```sh
+curl -fsSL https://raw.githubusercontent.com/Marker284/yandex-station-extended/main/contrib/panel/install-panel.sh | sh
+```
+
+После завершения скрипт напечатает ссылку и одноразовый код для задания пароля в браузере.
+
+## SoundCloud голосом { #soundcloud }
+
+Комплект скриптов [`contrib/fiero-hi-soundcloud`](https://github.com/Marker284/yandex-station-extended/tree/main/contrib/fiero-hi-soundcloud)
+позволяет запускать треки из SoundCloud голосовыми фразами («Алиса, включи [название] на саундклауде»),
+управлять паузой, перемоткой и громкостью без ПК, тяжелого Python или yt-dlp.
+
+Для обхода региональных блокировок поддерживается встроенный VLESS-прокси через `xray`.
+
+Установка: скопируйте файлы из каталога `contrib/fiero-hi-soundcloud/` в `/data/opt/soundcloud/`
+на колонке, сделайте их исполняемыми и настройте VLESS в `sc-vpn.sh`.
+
 ## Что проверено именно на этой модели { #tested }
 
 - Внутри — Станция Лайт Micro v1.2 (Amlogic AXG), прошивка quasar.
