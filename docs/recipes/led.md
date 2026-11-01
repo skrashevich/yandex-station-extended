@@ -80,10 +80,11 @@ LED-trigger. Если оставить `none`, штатная анимация �
 
 ### Радуга в голосовом режиме { #plum-led-rainbow }
 
-В [Alisa Voice](llm.md#chatgpt-web) подсветка настраивается в обоих режимах через
+На Лайт 1/2 в [Alisa Voice](llm.md#chatgpt-web) подсветка настраивается через
 «Настройки → Подсветка». Доступны радуга, постоянные цвета, пульсация и отключение
 GPT-подсветки. При выборе стрелками на колонке показывается демо; Enter сохраняет цвет,
-Esc возвращает прежний.
+Esc возвращает прежний. На Станции 2 подсветка GPT пока не поддерживается;
+эти настройки скрыты, панелью продолжает управлять Алиса.
 
 Контроллер [indicator.py][rainbow-controller] моста формирует кадры до 10 раз/с:
 три оттенка со сдвигом на 120°, оборот за 6 секунд,
@@ -93,7 +94,7 @@ Esc возвращает прежний.
 [C++-модуль][native-led], ПК для анимации не нужен.
 
 На нативном клиенте Лайт 1/2 в паузах можно включить голубую волну отдельной галочкой
-«Настройки → Подсветка в паузах GPT». В версии 0.3.2 она выключена по умолчанию;
+«Настройки → Подсветка в паузах GPT». Начиная с версии 0.3.2 она выключена по умолчанию;
 переключение применяется без перезапуска разговора. Цвет «Выключена» гасит всю
 GPT-подсветку, включая волну. Демо показывает выбранную анимацию ответа.
 
@@ -112,11 +113,11 @@ ssh alice 'rm /data/opt/alice-led/indicator.sh && rmdir /data/opt/alice-led'
 Системные файлы и автозапуск этот пример не меняет.
 
 [led-project]: https://github.com/rison1337/Alisa-ChatGPT-voice-assistant
-[plum-indicator]: https://github.com/rison1337/Alisa-ChatGPT-voice-assistant/blob/v0.3.2/engines/bridge/station/indicator.sh
-[rainbow-controller]: https://github.com/rison1337/Alisa-ChatGPT-voice-assistant/blob/v0.3.2/engines/bridge/indicator.py
-[led-tests]: https://github.com/rison1337/Alisa-ChatGPT-voice-assistant/blob/v0.3.2/engines/bridge/tests/test_voice_controls.py
+[plum-indicator]: https://github.com/rison1337/Alisa-ChatGPT-voice-assistant/blob/v0.3.3/engines/bridge/station/indicator.sh
+[rainbow-controller]: https://github.com/rison1337/Alisa-ChatGPT-voice-assistant/blob/v0.3.3/engines/bridge/indicator.py
+[led-tests]: https://github.com/rison1337/Alisa-ChatGPT-voice-assistant/blob/v0.3.3/engines/bridge/tests/test_voice_controls.py
 
-[native-led]: https://github.com/rison1337/Alisa-ChatGPT-voice-assistant/blob/v0.3.2/engines/native/native/effects.hpp
+[native-led]: https://github.com/rison1337/Alisa-ChatGPT-voice-assistant/blob/v0.3.3/engines/native/native/effects.hpp
 
 ## Станция Мини (1-е поколение): `led_util` и SN3236 { #mini1-led }
 

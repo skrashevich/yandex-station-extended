@@ -9,6 +9,10 @@
 У этой конфигурации два микрофонных канала и один опорный канал динамика на входе 48 кГц;
 обработанный выход — моно 16 кГц. Число каналов других моделей нужно проверять отдельно.
 
+В Alisa Voice 0.3.3 обработанный микрофон также используется нативным клиентом Станции 2
+по [результатам автора адаптации][station2]. Это не передача звука на ПК:
+мост из этой инструкции по-прежнему доступен только на Лайт 2.
+
 ## Запуск готового моста { #vqe-start }
 
 Если уже работает нативный клиент Alisa Voice, остановите его в CLI перед установкой
@@ -90,7 +94,9 @@ CLI выбирает VQE по умолчанию; переменная окру�
 - Количественное улучшение распознавания и эхоподавления не измерено.
 
 [bridge]: https://github.com/rison1337/Alisa-ChatGPT-voice-assistant
-[vqe-source]: https://github.com/rison1337/Alisa-ChatGPT-voice-assistant/blob/v0.3.2/engines/bridge/station/vqe_tap.c
-[build-source]: https://github.com/rison1337/Alisa-ChatGPT-voice-assistant/blob/v0.3.2/engines/bridge/scripts/build.py
-[vqe-tests]: https://github.com/rison1337/Alisa-ChatGPT-voice-assistant/blob/v0.3.2/engines/bridge/tests/test_vqe_tap.py
-[firmware-policy]: https://github.com/rison1337/Alisa-ChatGPT-voice-assistant/blob/v0.3.2/docs/firmware-compatibility.md
+[vqe-source]: https://github.com/rison1337/Alisa-ChatGPT-voice-assistant/blob/v0.3.3/engines/bridge/station/vqe_tap.c
+[build-source]: https://github.com/rison1337/Alisa-ChatGPT-voice-assistant/blob/v0.3.3/engines/bridge/scripts/build.py
+[vqe-tests]: https://github.com/rison1337/Alisa-ChatGPT-voice-assistant/blob/v0.3.3/engines/bridge/tests/test_vqe_tap.py
+[firmware-policy]: https://github.com/rison1337/Alisa-ChatGPT-voice-assistant/blob/v0.3.3/docs/firmware-compatibility.md
+
+[station2]: https://github.com/rison1337/Alisa-ChatGPT-voice-assistant/blob/v0.3.3/docs/firmware-compatibility.md#яндекс-станция-2-yandexmidi

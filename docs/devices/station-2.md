@@ -43,10 +43,10 @@
 | YouTube Music | частично (голосом не проверялось) | [YouTube Music](../recipes/youtube-music.md) |
 | Плеер как Bluetooth-источник | не проверялось | — |
 | Свои звуки | не проверялось | — |
-| Обработанный микрофон | не проверялось | — |
+| Обработанный микрофон | частично: в нативном GPT, по данным автора адаптации; передача на ПК не проверена | [Alisa Voice](../recipes/llm.md#chatgpt-web) |
 | Подсветка | работает | [Индикация](#led) |
 | YAM | не проверялось | — |
-| Своя LLM | работает | [Quasar Bridge](../recipes/llm.md#quasar-bridge) |
+| Своя LLM | работает: Quasar Bridge; нативный ChatGPT — по данным автора адаптации | [Quasar Bridge](../recipes/llm.md#quasar-bridge), [Alisa Voice](../recipes/llm.md#chatgpt-web) |
 
 ## Получение root { #root }
 
