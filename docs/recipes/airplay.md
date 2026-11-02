@@ -4,11 +4,95 @@
 
 | Колонка | Что делаем |
 |---|---|
+| Любая Linux-станция (Лайт, Лайт 2, Мини 1–3, Миди, Станция 2, Стрит, Станция 3) | [лёгкий приёмник Station AirPlay, ничего не меняет в станции](#station-airplay) |
 | Мини 3 с уже установленным пакетом `/data/shairport` | [чиним две известные проблемы скриптом](#fix) |
 | Лайт 2 (Plum) | [своя сборка, AirPlay виден Алисе как Bluetooth-телефон](#lite2) |
 | Станция 2 | [готовый набор из исходников](#station-2-bundle) |
 | Лайт 1 (Micro) | [самостоятельный приёмник AirPlay 2, без интеграции с Алисой](#lite1) |
 | Станция 1 с Android 6 и AliceBridge | [установка AirPlay 2 одним скриптом](#station-1) |
+
+## Station AirPlay: лёгкий приёмник для всех Linux-станций { #station-airplay }
+
+[Station AirPlay](https://github.com/skrashevich/station-airplay) — отдельный
+приёмник AirPlay 2, написанный с нуля специально для Яндекс Станций. Это не
+очередная сборка Shairport Sync, а собственная реализация, поэтому она устроена
+проще и аккуратнее, чем варианты выше.
+
+**Чем он лучше:**
+
+- **Ничего не меняет в станции.** Не правит конфиги прошивки и Алисы, не
+  останавливает её плеер, не трогает громкость и настройки звука, не отключает
+  обновления. Звук идёт тем же штатным путём, что и у самой станции.
+- **Поэтому уживается с чем угодно.** Station AirPlay можно поставить рядом с
+  любыми другими программами на станции — он не мешает им, а они ему. Нельзя
+  только держать одновременно второй AirPlay-приёмник: они займут одни и те же
+  порты.
+- **Лёгкий.** Это один файл размером около 4 МБ. Не нужны Entware, avahi, dbus,
+  nqptp и прочие дополнительные службы — всё необходимое уже внутри.
+- **Одна инструкция на все модели.** Не нужно искать свой рецепт под каждую
+  станцию: подходящий пакет выбирается по модели автоматически.
+
+**Подходит для:** Лайт, Лайт 2, Мини 1, Мини 2, Мини 3, Мини 3 Про, Миди,
+Станция 2, Стрит, Станция 3. Нужен root-доступ.
+**Не подходит для:** Станции Макс и Станции 1-го поколения — они работают на
+Android.
+
+Воспроизведение с iPhone проверено на Миди и Станции 2, в том числе на обеих
+сразу (групповое воспроизведение). На остальных моделях пакет ставится, но звук
+с iPhone пока подтверждён не везде — если проверите на своей,
+[сообщите](../contributing.md).
+
+### Установка { #station-airplay-install }
+
+1. Получите root на станции — [инструкция для вашей модели](../start/index.md#root-by-model).
+2. Поставьте новую версию YAM (менеджер пакетов на самой станции) —
+   [как это сделать](packagemanagers.md#install). Старый YAM 0.1.x с пакетами
+   `.yap` не подойдёт.
+3. Если на станции уже стоит другой AirPlay (любой из рецептов выше), сначала
+   отключите или удалите его.
+4. Подключитесь к станции (ADB или SSH) и выполните **на станции**:
+
+    ```sh
+    yam registry add official https://repo.yse.wtf/v2 \
+      --key ed25519:5Rz8F47uftWVU5kLgWYhprkEZ4rpP2kecUge/a7KQas=
+    yam install skrashevich/station-airplay
+    ```
+
+    Первую команду можно пропустить, если официальный реестр YAM у вас уже
+    добавлен.
+
+5. Проверьте, что всё в порядке:
+
+    ```sh
+    station-airplay -check
+    station-airplay-service status
+    ```
+
+Приёмник запускается сразу после установки и сам стартует после перезагрузки.
+На iPhone откройте «Пункт управления» → AirPlay и выберите станцию.
+
+!!! tip "Без YAM"
+    На [странице релизов](https://github.com/skrashevich/station-airplay/releases)
+    есть и обычные архивы для ARM64 и ARMv7 со своим установщиком
+    `scripts/install.sh`. Порядок установки описан в
+    [README проекта](https://github.com/skrashevich/station-airplay#автономный-архив).
+
+### Управление и удаление { #station-airplay-control }
+
+```sh
+station-airplay-service stop      # остановить
+station-airplay-service start     # запустить
+station-airplay-service disable   # остановить и не запускать после перезагрузки
+station-airplay-service enable    # снова включить
+```
+
+Удалить: `station-airplay-service disable`, затем
+`yam remove skrashevich/station-airplay`.
+
+Если станции нет в списке AirPlay, проверьте, что телефон и станция подключены
+к одной Wi-Fi-сети и роутер не изолирует клиентов. Если станция пропадает через
+несколько минут, смотрите раздел про [IGMP snooping](../internals/gotchas.md#igmp).
+Журнал работы: `/data/yam/var/skrashevich.station-airplay/receiver.log`.
 
 ## Станция 1: AirPlay 2 через AliceBridge { #station-1 }
 
@@ -412,6 +496,7 @@ Content-Type: application/x-apple-binary-plist
 
 | Что ставили | Как убрать |
 |---|---|
+| [Station AirPlay](#station-airplay) | `station-airplay-service disable`, затем `yam remove skrashevich/station-airplay` |
 | [Починку готового пакета](#fix) | `./contrib/yandex-station-airplay-fix.sh <IP>:5555 --uninstall` — хуки снимаются, возвращается оригинальный `airplayd` |
 | [Набор для Лайт 2](#lite2) | тем же установщиком: `curl -fsSL https://raw.githubusercontent.com/Marker284/yandex-station-extended/main/contrib/airplay-lite2/install.sh \| sh -s -- <IP> --uninstall --reboot` |
 | [Набор для Станции 2](#station-2-bundle) | `./install.sh <IP> --uninstall --reboot` из клона репозитория, каталог `contrib/station2-media`; сторож обновлений `/etc/init.d/S96otaguard` удаляется отдельно, а штатные обновления возвращает `sh /data/opt/yandex-noupdate.sh restore` |
